@@ -1,6 +1,8 @@
 ### STILL UNDER CONSTRUCTION!!!!
 ###
 #Put your info here:
+MAGMA_VERSION='v1.8'
+MAGMA_PATH='/magma'
 domain='yourdomain'
 st='Country'
 o='Company'
@@ -9,8 +11,6 @@ email='your@email.com'
 worDir=$MAGMA_PATH/certs
 days='3650'
 #rm $worDir/*
-MAGMA_VERSION='v1.8';
-MAGMA_PATH='/magma';
 
 mkdir -p $MAGMA_PATH
 mkdir -p $MAGMA_PATH/certs
@@ -37,7 +37,8 @@ cp -R nms/shared $MAGMA_PATH/magmalte/
 ##########################################################
 ## CERTS PART
 ## GEnerating RSA private key
-
+echo "GENERATING CERTS"
+pwd
 openssl genrsa -out $worDir/rootCA.key 2048
 openssl req -x509 -new -nodes -key $worDir/rootCA.key -sha256 -days $days -subj "/C=$c/ST=$st/O=$o/OU=IT/CN=rootca.$domain/emailAddress=$email" -out $worDir/rootCA.pem
 openssl genrsa -out $worDir/controller.key 2048
@@ -45,11 +46,13 @@ openssl req -new -key $worDir/controller.key -subj "/C=$/ST=$st/O=$o/OU=IT/CN=*.
 openssl x509 -req -in $worDir/controller.csr -CA $worDir/rootCA.pem -CAkey $worDir/rootCA.key -CAcreateserial -out $worDir/controller.crt -days $days -sha256
 rm $worDir/controller.csr $worDir/rootCA.key $worDir/rootCA.srl
 
+
 openssl genrsa -out $worDir/certifier.key 2048
 openssl req -x509 -new -nodes -key $worDir/certifier.key -sha256 -days $days -subj "/C=$c/ST=$st/O=$o/OU=IT/CN=certifier.$domain/emailAddress=$email" -out $worDir/certifier.pem
 openssl genrsa -out $worDir/bootstrapper.key 2048
 openssl req -new -x509 -nodes -out $MAGMA_PATH/docker_ssl_proxy/cert.pem -keyout $MAGMA_PATH/docker_ssl_proxy/key.pem -days 365
 cd $MAGMA_PATH/certs
+ls -l
 openssl genrsa -out fluentd.key 2048
 openssl req -new -key fluentd.key -out fluentd.csr -subj "/C=$c/CN=fluentd.$domain"
 openssl x509 -req -in fluentd.csr -CA certifier.pem -CAkey certifier.key -CAcreateserial -out fluentd.pem -days 3650 -sha256
